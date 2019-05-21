@@ -86,6 +86,18 @@ class GameMap {
         })
     }
 
+    hasEmptyField() {
+        for (let x = 0; x < this.dimension.length; x++) {
+            const column = this.dimension[x];
+            for (let y = 0; y < column.length; y++) {
+                const tile = column[y];
+                if(tile == undefined)
+                    return true
+            }
+        }
+        return false
+    }
+
     update() {
 
     }
@@ -114,7 +126,6 @@ class GameMap {
 
         // Drawing tiles
         this.iterate((x, y, tile) => {
-            console.log('X: ' + x + ', Y: ' + y)
             if(tile == undefined)
                 return
         
@@ -158,17 +169,17 @@ function moveLeft() {
         if(tile == undefined)
             return
     
-        for (let newIndex = 0; newIndex < index; newIndex++) {
-            const testElement = rowArray[newIndex];
+        for (let newIndex = 0; newIndex < x; newIndex++) {
+            const testElement = map.getTileAt(newIndex, y)
 
             if(testElement == undefined) {
-                rowArray[newIndex] = element
-                rowArray[index] = undefined
-                break
+                map.setTileAt(newIndex, y, tile)
+                map.setTileAt(x, y, undefined)
+                return
             } else {
-                if(testElement.value == element.value) {
-                    testElement.value += element.value
-                    rowArray[index] = undefined
+                if(testElement.value == tile.value) {
+                    testElement.value += tile.value
+                    map.setTileAt(x, y, undefined)
                 }
             }
         }
@@ -221,37 +232,7 @@ function createTile() {
 }
 
 function possibleActions() {
-
-    for (let columnIndex = 0; columnIndex < array.length; columnIndex++) {
-        const rowArray = array[columnIndex];
-
-        for (let index = rowArray.length-1; index >= 0; index--) {
-            const element = rowArray[index];
-
-            if(element != undefined) {
-
-                for (let newIndex = rowArray.length-1; newIndex > index; newIndex--) {
-                    const testElement = rowArray[newIndex];
-
-                    if(testElement == undefined) {
-                        return true
-                    } else {
-                        return testElement.value == element.value
-                    }
-                }
-
-            }
-        }
-        
-    }
-
-    return false
-}
-
-function hasEmptyField() {
-    map.iterate((x, y, tile) => {
-        console.log('X: ' + y, ', Y: '+ y)
-    })
+    return true
 }
 
 var lastMove = Date.now()
@@ -282,12 +263,17 @@ function keyDownTextField(e) {
                 break
         }
 
+        if(!map.hasEmptyField()) {
+            alert('You lost!')
+        }
+
+
         let tile = createTile()
 
         do {
-            var ranX = getRandomInRange(rows)
-            var ranY = getRandomInRange(columns)
-        } while(array[ranX][ranY] != undefined)
+            var ranX = getRandomInRange(columns)
+            var ranY = getRandomInRange(rows)
+        } while(map.getTileAt(ranX, ranY) != undefined)
 
         console.log('Tile spawned at X: ' + ranX + ' Y: ' + ranY)
 
