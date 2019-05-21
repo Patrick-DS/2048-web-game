@@ -78,12 +78,28 @@ class GameMap {
     }
 
     iterate(fun) {
-        this.dimension.forEach((column, x) => {
-            for (let index = 0; index < column.length; index++) {
-                const tile = column[index];
-                fun(x, index, tile)
+        for (let x = 0; x < this.dimension.length; x++) {
+            const column = this.dimension[x];
+            for (let y = 0; y < column.length; y++) {
+                const tile = column[y];
+                const cancel = fun(x, y, tile)
+
+                if(cancel)
+                    return
             }
-        })
+        }
+    }
+
+    hasEmptyField() {
+        for (let x = 0; x < this.dimension.length; x++) {
+            const column = this.dimension[x];
+            for (let y = 0; y < column.length; y++) {
+                const tile = column[y];
+                if(tile == undefined)
+                    return true
+            }
+        }
+        return false
     }
 
     update() {
@@ -114,7 +130,6 @@ class GameMap {
 
         // Drawing tiles
         this.iterate((x, y, tile) => {
-            console.log('X: ' + x + ', Y: ' + y)
             if(tile == undefined)
                 return
         
@@ -144,73 +159,122 @@ map.begin()
 
 
 function moveUp() {
+    map.iterate((x, y, tile) => {
+        if(tile == undefined)
+            return false
+    
+        for (let newIndex = 0; newIndex < y; newIndex++) {
+            const testElement = map.getTileAt(x, newIndex)
 
+            if(testElement == undefined) {
+                map.setTileAt(x, newIndex, tile)
+                map.setTileAt(x, y, undefined)
+            } else {
+                if(testElement.value == tile.value) {
+                    testElement.value += tile.value
+                    map.setTileAt(x, y, undefined)
+                }
+            }
+        }
+
+        return false
+
+    })
 }
 
 function moveDown() {
 
+    map.iterate((x, y, tile) => {
+        if(tile == undefined)
+            return false
+    
+        for (let newIndex = rows-1; newIndex > y; newIndex--) {
+            const testElement = map.getTileAt(x, newIndex)
+
+            if(testElement == undefined) {
+                console.log('Position changed')
+                map.setTileAt(x, newIndex, tile)
+                map.setTileAt(x, y, undefined)
+                return true
+            } else {
+                if(testElement.value == tile.value) {
+                    testElement.value += tile.value
+                    map.setTileAt(x, y, undefined)
+                }
+            }
+        }
+        return false
+    })
 }
 
 
 function moveLeft() {
 
+    moves = []
+
     map.iterate((x, y, tile) => {
         if(tile == undefined)
-            return
-    
-        for (let newIndex = 0; newIndex < index; newIndex++) {
-            const testElement = rowArray[newIndex];
+            return false
 
-            if(testElement == undefined) {
-                rowArray[newIndex] = element
-                rowArray[index] = undefined
-                break
-            } else {
-                if(testElement.value == element.value) {
-                    testElement.value += element.value
-                    rowArray[index] = undefined
-                }
+        let bestIndex = x
+
+        for (let newIndex = x-1; newIndex > 0; newIndex--) {
+            const element = map.getTileAt(newIndex, y)
+
+            console.log(newIndex)
+
+            if(element == undefined || element.value == tile.value) {
+                bestIndex = newIndex
             }
         }
 
-    
+        const element = map.getTileAt(bestIndex, y)
+        moves.push(() => {
+            if(element == undefined) {
+                    map.setTileAt(bestIndex, y, tile)
+                    map.setTileAt(x, y, undefined)
+            } else {
+                if(element.value == tile.value) {
+                    element.value += tile.value
+                    map.setTileAt(x, y, undefined)
+                }
+            }
+        })
 
+        return false
     })
+
+    moves.forEach(element => {
+        element()
+    });
 
 }
 
 
 function moveRight() {
+    map.iterate((x, y, tile) => {
+        if(tile == undefined)
+            return false
+        console.log(tile)
+    
+        for (let newIndex = columns-1; newIndex > x; newIndex--) {
+            console.log(newIndex)
+            const testElement = map.getTileAt(newIndex, y)
 
-    for (let columnIndex = 0; columnIndex < array.length; columnIndex++) {
-        const rowArray = array[columnIndex];
-
-        for (let index = rowArray.length-1; index >= 0; index--) {
-            const element = rowArray[index];
-
-            if(element != undefined) {
-
-                for (let newIndex = rowArray.length-1; newIndex > index; newIndex--) {
-                    const testElement = rowArray[newIndex];
-
-                    if(testElement == undefined) {
-                        rowArray[newIndex] = element
-                        rowArray[index] = undefined
-                        break
-                    } else {
-                        if(testElement.value == element.value) {
-                            testElement.value += element.value
-                            rowArray[index] = undefined
-                        }
-                    }
+            if(testElement == undefined) {
+                console.log('Position changed')
+                map.setTileAt(newIndex, y, tile)
+                map.setTileAt(x, y, undefined)
+                return true
+            } else {
+                if(testElement.value == tile.value) {
+                    testElement.value += tile.value
+                    map.setTileAt(x, y, undefined)
                 }
-
             }
-            
         }
-        
-    }
-
+        return false
+    })
 
 }
 
@@ -221,37 +285,7 @@ function createTile() {
 }
 
 function possibleActions() {
-
-    for (let columnIndex = 0; columnIndex < array.length; columnIndex++) {
-        const rowArray = array[columnIndex];
-
-        for (let index = rowArray.length-1; index >= 0; index--) {
-            const element = rowArray[index];
-
-            if(element != undefined) {
-
-                for (let newIndex = rowArray.length-1; newIndex > index; newIndex--) {
-                    const testElement = rowArray[newIndex];
-
-                    if(testElement == undefined) {
-                        return true
-                    } else {
-                        return testElement.value == element.value
-                    }
-                }
-
-            }
-        }
-        
-    }
-
-    return false
-}
-
-function hasEmptyField() {
-    map.iterate((x, y, tile) => {
-        console.log('X: ' + y, ', Y: '+ y)
-    })
+    return true
 }
 
 var lastMove = Date.now()
@@ -282,12 +316,17 @@ function keyDownTextField(e) {
                 break
         }
 
+        if(!map.hasEmptyField()) {
+            alert('You lost!')
+        }
+
+
         let tile = createTile()
 
         do {
-            var ranX = getRandomInRange(rows)
-            var ranY = getRandomInRange(columns)
-        } while(array[ranX][ranY] != undefined)
+            var ranX = getRandomInRange(columns)
+            var ranY = getRandomInRange(rows)
+        } while(map.getTileAt(ranX, ranY) != undefined)
 
         console.log('Tile spawned at X: ' + ranX + ' Y: ' + ranY)
 
