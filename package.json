@@ -1,0 +1,25 @@
+{
+  "name": "2048-web-game",
+  "version": "1.0.0",
+  "description": "Open repository to play with 2048 and AI algorithms",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Patrick-DS/2048-web-game.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Patrick-DS/2048-web-game/issues"
+  },
+  "homepage": "https://github.com/Patrick-DS/2048-web-game#readme",
+  "dependencies": {
+    "express": "^4.17.0",
+    "helmet": "^3.18.0",
+    "pug": "^2.0.3"
+  }
+}
